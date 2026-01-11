@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { login, clearError } from '../store/authSlice';
-import { connectSocket } from '../utils/socket';
 import toast from 'react-hot-toast';
-import api from '../utils/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,25 +11,7 @@ const Login = () => {
   });
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Get token from cookies and connect socket
-      api.get('/auth/me').then(() => {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          ?.split('=')[1];
-        
-        if (token) {
-          connectSocket(token);
-        }
-      });
-      navigate('/');
-    }
-  }, [isAuthenticated, navigate]);
+  const { loading, error } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (error) {

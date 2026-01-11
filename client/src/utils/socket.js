@@ -3,7 +3,8 @@ import toast from 'react-hot-toast';
 
 let socket = null;
 
-export const connectSocket = (token) => {
+// Socket authentication now relies on HttpOnly cookie; no token is passed from client
+export const connectSocket = () => {
   if (socket) {
     return socket;
   }
@@ -14,16 +15,6 @@ export const connectSocket = (token) => {
 
   socket.on('connect', () => {
     console.log('Socket connected:', socket.id);
-    // Authenticate with token
-    socket.emit('authenticate', token);
-  });
-
-  socket.on('authenticated', (data) => {
-    if (data.success) {
-      console.log('Socket authenticated successfully');
-    } else {
-      console.error('Socket authentication failed:', data.message);
-    }
   });
 
   socket.on('hired_notification', (data) => {

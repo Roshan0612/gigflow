@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { store } from './store/store';
 import { getMe } from './store/authSlice';
 import { connectSocket } from './utils/socket';
-import api from './utils/api';
 
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,32 +16,37 @@ import GigDetail from './pages/GigDetail';
 
 function AppContent() {
   const dispatch = useDispatch();
-  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [authChecked, setAuthChecked] = useState(false);
+  const authCheckRan = useRef(false);
 
   useEffect(() => {
+    // Prevent multiple auth checks
+    if (authCheckRan.current) return;
+    authCheckRan.current = true;
+
     // Check if user is already authenticated on mount
     const checkAuth = async () => {
       try {
         await dispatch(getMe()).unwrap();
-        
-        // If authenticated, connect socket
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          ?.split('=')[1];
-        
-        if (token) {
-          connectSocket(token);
+        // Connect socket using HttpOnly cookie (no token needed)
+        try {
+          connectSocket();
+        } catch (socketError) {
+          console.error('Socket connection failed:', socketError);
         }
       } catch (error) {
         // User not authenticated
+      } finally {
+        setAuthChecked(true);
       }
     };
 
     checkAuth();
   }, [dispatch]);
 
-  if (loading) {
+  // Show loading only during initial auth check
+  if (!authChecked) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-xl">Loading...</div>
@@ -59,11 +63,11 @@ function AppContent() {
         <Route path="/" element={<GigFeed />} />
         <Route 
           path="/login" 
-          element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
         />
         <Route 
           path="/register" 
-          element={isAuthenticated ? <Navigate to="/" /> : <Register />} 
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} 
         />
         <Route 
           path="/post-gig" 
@@ -74,7 +78,7 @@ function AppContent() {
           } 
         />
         <Route path="/gig/:id" element={<GigDetail />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

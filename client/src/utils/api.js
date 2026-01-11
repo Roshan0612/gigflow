@@ -5,16 +5,4 @@ const api = axios.create({
   withCredentials: true
 });
 
-// Interceptor to handle errors globally
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
 export default api;
