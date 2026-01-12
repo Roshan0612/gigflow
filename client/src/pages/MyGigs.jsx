@@ -26,22 +26,22 @@ const MyGigs = () => {
   const myGigs = gigs.filter((gig) => gig.ownerId._id === user?._id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 py-12 px-6 sm:px-8 lg:px-12">
-      <div className="max-w-[1400px] mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 py-6 sm:py-12 px-4 sm:px-6 lg:px-12">
+      <div className="max-w-[1200px] mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">
+              <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 mb-1 sm:mb-2">
                 My Gigs
               </h1>
-              <p className="text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 Manage all your posted projects
               </p>
             </div>
             <Link
               to="/post-gig"
-              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow flex items-center space-x-2"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -84,7 +84,7 @@ const MyGigs = () => {
         {!loading && myGigs.length > 0 && (
           <div>
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -135,56 +135,43 @@ const MyGigs = () => {
             </div>
 
             {/* Gigs List */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {myGigs.map((gig) => (
                 <Link
                   key={gig._id}
                   to={`/gig/${gig._id}`}
-                  className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-indigo-200 transition-all duration-200 group"
+                  className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 hover:shadow-md hover:border-indigo-200 transition-all duration-200 group"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    {/* Left */}
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                           {gig.title}
                         </h3>
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                          gig.status === 'open' 
-                            ? 'bg-emerald-100 text-emerald-700' 
-                            : 'bg-slate-100 text-slate-700'
+                        <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                          gig.status === 'open' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
                         }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                            gig.status === 'open' ? 'bg-emerald-500' : 'bg-slate-500'
-                          }`}></span>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-2 ${gig.status === 'open' ? 'bg-emerald-500' : 'bg-slate-500'}`} />
                           {gig.status === 'open' ? 'Open' : 'Assigned'}
                         </span>
                       </div>
-                      <p className="text-slate-600 text-sm line-clamp-2 mb-4">
-                        {gig.description}
-                      </p>
+                      <p className="text-slate-600 text-sm line-clamp-2 mb-3">{gig.description}</p>
                       <div className="flex items-center space-x-6 text-sm">
                         <div>
                           <p className="text-slate-500">Budget</p>
-                          <p className="font-bold text-slate-900">₹{gig.budget.toLocaleString()}</p>
+                          <p className="font-bold text-slate-900">₹{(gig.budget || 0).toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">Posted</p>
                           <p className="font-bold text-slate-900">
-                            {new Date(gig.createdAt).toLocaleDateString('en-IN', {
-                              day: 'short',
-                              month: 'short'
-                            })}
+                            {new Date(gig.createdAt).toLocaleDateString('en-IN', { day: 'short', month: 'short' })}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Right - Arrow */}
-                    <div className="flex sm:flex-col items-center justify-end space-x-3 sm:space-x-0 sm:space-y-3">
-                      <div className="text-right hidden sm:block">
-                        <p className="text-xs text-slate-500">View Details</p>
-                      </div>
+                    <div className="flex flex-col items-center justify-center ml-4">
+                      <p className="hidden sm:block text-xs text-slate-500 mb-2">View Details</p>
                       <svg className="w-6 h-6 text-slate-400 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>

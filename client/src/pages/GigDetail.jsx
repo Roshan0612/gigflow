@@ -162,12 +162,12 @@ const GigDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 py-8 px-6 sm:px-8 lg:px-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 py-6 sm:py-8 px-4 sm:px-6 lg:px-12">
       <div className="max-w-[1200px] mx-auto">
         {/* Back button */}
         <button
           onClick={() => navigate('/')}
-          className="mb-6 flex items-center space-x-2 text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+          className="mb-4 sm:mb-6 flex items-center space-x-2 text-slate-600 hover:text-indigo-600 transition-colors font-medium text-sm sm:text-base"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

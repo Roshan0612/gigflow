@@ -28,30 +28,30 @@ const GigFeed = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16">
-        <div className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-8 sm:py-12 lg:py-16">
+        <div className="px-4 sm:px-6 lg:px-12">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-2 sm:mb-4">
               Find Your Perfect Project
             </h1>
-            <p className="text-xl text-indigo-100 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-xl text-indigo-100 max-w-2xl mx-auto">
               Browse thousands of open gigs and start earning today
             </p>
           </div>
 
           {/* Search */}
           <div className="max-w-3xl mx-auto">
-            <form onSubmit={handleSearch} className="flex gap-3">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by title, skills, or keywords..."
-                className="flex-1 px-6 py-4 border-0 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white shadow-lg"
+                placeholder="Search gigs..."
+                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 border-0 rounded-lg sm:rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white shadow-lg text-sm sm:text-base"
               />
               <button
                 type="submit"
-                className="px-8 py-4 bg-white text-indigo-600 font-semibold rounded-xl hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white transition-all duration-200 shadow-lg"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-indigo-600 font-semibold rounded-lg sm:rounded-xl hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white transition-all duration-200 shadow-lg text-sm sm:text-base"
               >
                 Search
               </button>
@@ -61,7 +61,7 @@ const GigFeed = () => {
       </div>
 
       {/* Gigs Section */}
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 py-12">
+      <div className="px-4 sm:px-6 lg:px-12 py-8 sm:py-12">
         {/* Stats Bar */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -98,7 +98,7 @@ const GigFeed = () => {
         )}
 
         {/* Gigs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {gigs.map((gig) => (
             <Link
               key={gig._id}

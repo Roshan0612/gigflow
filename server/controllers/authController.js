@@ -44,11 +44,12 @@ export const register = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Set cookie
+    // Set cookie (use 'lax' in development and 'none' in production to support cross-origin dev setups)
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -104,11 +105,12 @@ export const login = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Set cookie
+    // Set cookie (use 'lax' in development and 'none' in production to support cross-origin dev setups)
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
