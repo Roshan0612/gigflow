@@ -9,8 +9,11 @@ export const connectSocket = () => {
     return socket;
   }
 
-  socket = io('http://localhost:5000', {
-    withCredentials: true
+  const socketURL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  
+  socket = io(socketURL, {
+    withCredentials: true,
+    transports: ['websocket', 'polling']
   });
 
   socket.on('connect', () => {
