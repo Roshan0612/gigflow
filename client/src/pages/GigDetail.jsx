@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchGigById, clearCurrentGig } from '../store/gigSlice';
 import { createBid, fetchBidsForGig, hireBid, clearBids, clearError } from '../store/bidSlice';
+import { getSocket } from '../utils/socket';
 import toast from 'react-hot-toast';
 
 const GigDetail = () => {
@@ -20,6 +21,9 @@ const GigDetail = () => {
   });
 
   const [showBidForm, setShowBidForm] = useState(false);
+
+  const isOwner = currentGig && user && currentGig.ownerId._id === user._id;
+  const canBid = currentGig && user && currentGig.ownerId._id !== user._id && currentGig.status === 'open';
 
   useEffect(() => {
     dispatch(fetchGigById(id));
@@ -44,8 +48,46 @@ const GigDetail = () => {
     }
   }, [bidError, dispatch]);
 
-  const isOwner = currentGig && user && currentGig.ownerId._id === user._id;
-  const canBid = currentGig && user && currentGig.ownerId._id !== user._id && currentGig.status === 'open';
+  // Real-time socket listener for new bids
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !currentGig || !isOwner) return;
+
+    const handleNewBid = (data) => {
+      console.log('New bid received in real-time:', data);
+      // Refresh bids list when new bid comes in
+      if (data.gigId === currentGig._id) {
+        dispatch(fetchBidsForGig(id));
+      }
+    };
+
+    socket.on('new_bid', handleNewBid);
+
+    return () => {
+      socket.off('new_bid', handleNewBid);
+    };
+  }, [currentGig, isOwner, id, dispatch]);
+
+  // Real-time socket listener for gig updates (when someone gets hired)
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !currentGig) return;
+
+    const handleGigUpdate = () => {
+      console.log('Gig status updated, refreshing...');
+      // Refresh gig details
+      dispatch(fetchGigById(id));
+      if (isOwner) {
+        dispatch(fetchBidsForGig(id));
+      }
+    };
+
+    socket.on('gig_updated', handleGigUpdate);
+
+    return () => {
+      socket.off('gig_updated', handleGigUpdate);
+    };
+  }, [currentGig, isOwner, id, dispatch]);
 
   const handleBidSubmit = async (e) => {
     e.preventDefault();
@@ -178,7 +220,7 @@ const GigDetail = () => {
               <div>
                 <p className="text-sm text-slate-500 mb-1">Project Budget</p>
                 <p className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  ${currentGig.budget.toLocaleString()}
+                  ₹{currentGig.budget.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -226,20 +268,19 @@ const GigDetail = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Your Bid Amount ($)
+                    Your Bid Amount (₹)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">$</span>
                     <input
                       type="number"
                       value={bidForm.price}
                       onChange={(e) => setBidForm({ ...bidForm, price: e.target.value })}
-                      className="input-base pl-8"
+                      className="input-base"
                       placeholder="0.00"
                       min="1"
                     />
                   </div>
-                  <p className="text-sm text-slate-500 mt-2">Project budget: ${currentGig.budget.toLocaleString()}</p>
+                  <p className="text-sm text-slate-500 mt-2">Project budget: ₹{currentGig.budget.toLocaleString()}</p>
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -359,7 +400,7 @@ const GigDetail = () => {
                       <div className="text-left sm:text-right">
                         <p className="text-sm text-slate-500 mb-1">Bid Amount</p>
                         <p className="text-2xl font-bold text-indigo-600">
-                          ${bid.price.toLocaleString()}
+                          ₹{bid.price.toLocaleString()}
                         </p>
                       </div>
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${

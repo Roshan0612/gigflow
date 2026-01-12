@@ -135,7 +135,7 @@ const GigFeed = () => {
                   <div>
                     <p className="text-xs text-slate-500 mb-1">Budget</p>
                     <p className="text-2xl font-bold text-indigo-600">
-                      ${gig.budget.toLocaleString()}
+                      ₹{gig.budget.toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right">

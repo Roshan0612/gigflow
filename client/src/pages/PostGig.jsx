@@ -113,16 +113,15 @@ const PostGig = () => {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Project Budget ($)
+                Project Budget (₹)
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium text-lg">$</span>
                 <input
                   type="number"
                   name="budget"
                   value={formData.budget}
                   onChange={handleChange}
-                  className="input-base pl-10 text-lg"
+                  className="input-base text-lg"
                   placeholder="0.00"
                   min="1"
                 />

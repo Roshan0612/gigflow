@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { register, clearError } from '../store/authSlice';
+import { connectSocket } from '../utils/socket';
 import toast from 'react-hot-toast';
 
 const Register = () => {
@@ -41,6 +42,12 @@ const Register = () => {
     try {
       await dispatch(register(formData)).unwrap();
       toast.success('Registration successful!');
+      // Connect socket after successful registration
+      try {
+        connectSocket();
+      } catch (socketError) {
+        console.error('Socket connection failed:', socketError);
+      }
     } catch (error) {
       // Error is handled by useEffect
     }

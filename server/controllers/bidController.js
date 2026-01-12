@@ -59,6 +59,25 @@ export const createBid = async (req, res) => {
     await bid.populate('freelancerId', 'name email');
     await bid.populate('gigId', 'title budget');
 
+    // Emit real-time notification to gig owner
+    const io = getSocketIO();
+    if (io) {
+      const gigOwnerId = gig.ownerId.toString();
+      io.emitToUser(gigOwnerId, 'new_bid', {
+        message: `New bid received for "${gig.title}"`,
+        gigId: gig._id,
+        gigTitle: gig.title,
+        bid: {
+          _id: bid._id,
+          freelancerId: bid.freelancerId,
+          message: bid.message,
+          price: bid.price,
+          status: bid.status,
+          createdAt: bid.createdAt
+        }
+      });
+    }
+
     res.status(201).json({
       success: true,
       message: 'Bid submitted successfully.',
@@ -237,6 +256,27 @@ export const hireBid = async (req, res) => {
         message: `You have been hired for "${hiredGig.title}"`,
         gigId: hiredGig._id,
         gigTitle: hiredGig.title
+      });
+
+      // Notify gig owner about gig status update
+      const gigOwnerId = hiredGig.ownerId.toString();
+      io.emitToUser(gigOwnerId, 'gig_updated', {
+        gigId: hiredGig._id
+      });
+
+      // Notify all rejected bidders
+      const rejectedBids = await Bid.find({
+        gigId: hiredGig._id,
+        _id: { $ne: hiredBid._id },
+        status: 'rejected'
+      }).populate('freelancerId', '_id');
+
+      rejectedBids.forEach((rejectedBid) => {
+        const rejectedFreelancerId = rejectedBid.freelancerId._id.toString();
+        io.emitToUser(rejectedFreelancerId, 'gig_updated', {
+          gigId: hiredGig._id,
+          message: `The gig "${hiredGig.title}" has been assigned to another freelancer.`
+        });
       });
     }
 

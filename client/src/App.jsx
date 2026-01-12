@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import GigFeed from './pages/GigFeed';
 import PostGig from './pages/PostGig';
 import GigDetail from './pages/GigDetail';
+import MyGigs from './pages/MyGigs';
 
 function AppContent() {
   const dispatch = useDispatch();
@@ -80,6 +81,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <PostGig />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/my-gigs" 
+          element={
+            <ProtectedRoute>
+              <MyGigs />
             </ProtectedRoute>
           } 
         />
