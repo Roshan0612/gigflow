@@ -1,10 +1,12 @@
 import express from 'express';
-import { createBid, getBidsForGig, hireBid } from '../controllers/bidController.js';
+import { createBid, getBidsForGig, hireBid, getMyBids } from '../controllers/bidController.js';
 import { authMiddleware } from '../middlewares/auth.js';
 
 const router = express.Router();
 
 router.post('/', authMiddleware, createBid);
+// Return bids created by the authenticated freelancer
+router.get('/mine', authMiddleware, getMyBids);
 router.get('/:gigId', authMiddleware, getBidsForGig);
 router.patch('/:bidId/hire', authMiddleware, hireBid);
 

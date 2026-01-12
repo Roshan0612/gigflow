@@ -141,6 +141,27 @@ export const getBidsForGig = async (req, res) => {
   }
 };
 
+// Get bids for the currently authenticated freelancer (their own bids)
+export const getMyBids = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const bids = await Bid.find({ freelancerId: userId })
+      .populate('gigId', 'title budget')
+      .populate('freelancerId', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: bids.length,
+      bids
+    });
+  } catch (error) {
+    console.error('Get my bids error:', error);
+    res.status(500).json({ success: false, message: 'Server error while fetching your bids.' });
+  }
+};
+
 // CRITICAL: Atomic hiring logic with MongoDB transactions
 export const hireBid = async (req, res) => {
   const { bidId } = req.params;

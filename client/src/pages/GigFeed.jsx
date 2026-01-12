@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchGigs, clearError } from '../store/gigSlice';
@@ -9,9 +9,17 @@ const GigFeed = () => {
   const dispatch = useDispatch();
   const { gigs, loading, error } = useSelector((state) => state.gigs);
 
+  const searchDebounce = useRef(null);
+
+  // Debounced live search: dispatch fetchGigs as the user types
   useEffect(() => {
-    dispatch(fetchGigs(''));
-  }, [dispatch]);
+    if (searchDebounce.current) clearTimeout(searchDebounce.current);
+    searchDebounce.current = setTimeout(() => {
+      dispatch(fetchGigs(search));
+    }, 300);
+
+    return () => clearTimeout(searchDebounce.current);
+  }, [search, dispatch]);
 
   useEffect(() => {
     if (error) {

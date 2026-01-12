@@ -26,6 +26,18 @@ export const fetchBidsForGig = createAsyncThunk(
   }
 );
 
+export const fetchMyBids = createAsyncThunk(
+  'bids/fetchMyBids',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/bids/mine');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch your bids');
+    }
+  }
+);
+
 export const hireBid = createAsyncThunk(
   'bids/hireBid',
   async (bidId, { rejectWithValue }) => {
@@ -42,6 +54,7 @@ const bidSlice = createSlice({
   name: 'bids',
   initialState: {
     bids: [],
+    myBids: [],
     loading: false,
     error: null
   },
@@ -78,6 +91,19 @@ const bidSlice = createSlice({
         state.bids = action.payload.bids;
       })
       .addCase(fetchBidsForGig.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch my bids
+      .addCase(fetchMyBids.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMyBids.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myBids = action.payload.bids;
+      })
+      .addCase(fetchMyBids.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

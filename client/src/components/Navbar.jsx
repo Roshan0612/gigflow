@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect, useRef } from 'react';
 import { logout } from '../store/authSlice';
 import { disconnectSocket } from '../utils/socket';
+import { fetchMyBids } from '../store/bidSlice';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
@@ -10,14 +11,17 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [showBidsPanel, setShowBidsPanel] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const menuRef = useRef(null);
+  const myBids = useSelector((state) => state.bids.myBids);
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setShowMenu(false);
+        setShowBidsPanel(false);
       }
     };
 
@@ -26,6 +30,8 @@ const Navbar = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [showMenu]);
+
+  // Note: live search moved to main content (GigFeed)
 
   const handleLogout = async () => {
     try {
@@ -56,18 +62,21 @@ const Navbar = () => {
           {/* Center Navigation - for authenticated users (hidden on mobile) */}
           {isAuthenticated && (
             <div className="hidden md:flex items-center space-x-6 lg:space-x-8 flex-1 justify-center px-6 lg:px-8">
-              <Link
-                to="/"
-                className="text-slate-600 hover:text-indigo-600 font-medium transition-colors duration-200"
-              >
-                Browse Gigs
-              </Link>
-              <Link
-                to="/my-gigs"
-                className="text-slate-600 hover:text-indigo-600 font-medium transition-colors duration-200"
-              >
-                My Gigs
-              </Link>
+              <div className="flex items-center space-x-6">
+                <Link
+                  to="/"
+                  className="text-slate-600 hover:text-indigo-600 font-medium transition-colors duration-200"
+                >
+                  Browse Gigs
+                </Link>
+                <Link
+                  to="/my-gigs"
+                  className="text-slate-600 hover:text-indigo-600 font-medium transition-colors duration-200"
+                >
+                  My Gigs
+                </Link>
+                {/* search moved to main content */}
+              </div>
             </div>
           )}
 
@@ -116,6 +125,54 @@ const Navbar = () => {
                         </svg>
                         <span className="font-medium">My Gigs</span>
                       </Link>
+
+                      {/* My Bids (inline panel) */}
+                      <button
+                        onClick={async () => {
+                          const next = !showBidsPanel;
+                          setShowBidsPanel(next);
+                          if (next) {
+                            try {
+                              await dispatch(fetchMyBids()).unwrap();
+                            } catch (err) {
+                              console.error('Failed to fetch my bids', err);
+                            }
+                          }
+                        }}
+                        className="block w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors duration-200 flex items-center space-x-3 text-slate-700 hover:text-indigo-600"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                        <span className="font-medium">My Bids</span>
+                      </button>
+
+                      {showBidsPanel && (
+                        <div className="px-3 py-2 border-t border-slate-100 max-h-64 overflow-auto">
+                          {myBids && myBids.length > 0 ? (
+                            myBids.map((b) => (
+                              <div key={b._id} className="py-2 border-b last:border-b-0">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <div className="text-sm font-semibold text-slate-900">{b.gigId?.title}</div>
+                                    <div className="text-xs text-slate-500">₹{b.price.toLocaleString()}</div>
+                                  </div>
+                                  <div>
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                                      b.status === 'hired' ? 'bg-emerald-100 text-emerald-700' : b.status === 'rejected' ? 'bg-slate-200 text-slate-600' : 'bg-amber-100 text-amber-700'
+                                    }`}>
+                                      {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-slate-600 mt-1">{b.gigId?.budget ? `Budget: ₹${b.gigId.budget.toLocaleString()}` : ''}</div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-slate-600 p-2">No bids yet</div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Divider */}
                       <div className="border-t border-slate-100 my-2"></div>
