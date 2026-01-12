@@ -3,6 +3,8 @@ import User from '../models/User.js';
 
 export const authMiddleware = async (req, res, next) => {
   try {
+    // DEBUG: log incoming cookies to help diagnose auth issues in development
+    console.log('Incoming request cookies:', req.cookies);
     // Get token from cookies
     const token = req.cookies.token;
 

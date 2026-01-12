@@ -45,13 +45,30 @@ export const register = async (req, res) => {
     const token = generateToken(user._id);
 
     // Set cookie (use 'lax' in development and 'none' in production to support cross-origin dev setups)
-    res.cookie('token', token, {
+    // Build cookie options
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+    };
+
+    // If a specific cookie domain is provided (useful for subdomain deployments), add it
+    if (process.env.COOKIE_DOMAIN) {
+      cookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    // If request is over HTTPS (or behind a proxy using x-forwarded-proto), enforce SameSite=None and Secure
+    const forwardedProto = req.headers['x-forwarded-proto'];
+    const isSecureReq = req.secure || (forwardedProto && forwardedProto.split(',')[0] === 'https') || process.env.NODE_ENV === 'production';
+    if (isSecureReq) {
+      cookieOptions.sameSite = 'none';
+      cookieOptions.secure = true;
+    }
+
+    res.cookie('token', token, cookieOptions);
+    console.log(`Set token cookie for user ${user._id} - cookieOptions:`, cookieOptions);
 
     res.status(201).json({
       success: true,
@@ -106,13 +123,28 @@ export const login = async (req, res) => {
     const token = generateToken(user._id);
 
     // Set cookie (use 'lax' in development and 'none' in production to support cross-origin dev setups)
-    res.cookie('token', token, {
+    // Build cookie options
+    const cookieOptions2 = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+    };
+
+    if (process.env.COOKIE_DOMAIN) {
+      cookieOptions2.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    const forwardedProto2 = req.headers['x-forwarded-proto'];
+    const isSecureReq2 = req.secure || (forwardedProto2 && forwardedProto2.split(',')[0] === 'https') || process.env.NODE_ENV === 'production';
+    if (isSecureReq2) {
+      cookieOptions2.sameSite = 'none';
+      cookieOptions2.secure = true;
+    }
+
+    res.cookie('token', token, cookieOptions2);
+    console.log(`Set token cookie for user ${user._id} - cookieOptions:`, cookieOptions2);
 
     res.status(200).json({
       success: true,

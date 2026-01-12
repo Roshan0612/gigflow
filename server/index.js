@@ -15,6 +15,8 @@ import bidRoutes from './routes/bidRoutes.js';
 dotenv.config();
 
 const app = express();
+// When behind a proxy (e.g., Heroku, Cloudflare, nginx), trust first proxy
+app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
 // Initialize Socket.io
