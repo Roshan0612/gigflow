@@ -51,6 +51,10 @@ const gigSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    addGig: (state, action) => {
+      // Prepend a gig received from socket event
+      state.gigs.unshift(action.payload);
+    },
     clearCurrentGig: (state) => {
       state.currentGig = null;
     }
@@ -100,4 +104,5 @@ const gigSlice = createSlice({
 });
 
 export const { clearError, clearCurrentGig } = gigSlice.actions;
+export const { addGig } = gigSlice.actions;
 export default gigSlice.reducer;

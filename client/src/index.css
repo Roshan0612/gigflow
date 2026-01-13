@@ -4,7 +4,17 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    /* Palette-based base styles */
+    --bf-900: #212A31; /* dark */
+    --bf-800: #2E3944; /* dark-2 */
+    --bf-primary: #124E66; /* primary */
+    --bf-400: #748D92; /* muted */
+    --bf-200: #D3D9D4; /* light */
+
+    background-color: var(--bf-200);
+    color: var(--bf-900);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   }
@@ -19,7 +29,7 @@
   }
 
   .card-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow: 0 6px 18px rgba(17,24,39,0.06), 0 2px 6px rgba(17,24,39,0.04);
   }
 
   .card-shadow-hover {
@@ -31,22 +41,28 @@
   }
   
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(18,78,102,0.12);
   }
 
   .input-base {
-    @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-2.5 rounded-lg bg-white text-[var(--bf-900)] placeholder:text-[var(--bf-400)] transition-all duration-200;
+    border: 1px solid rgba(34,50,58,0.06);
   }
 
   .btn-primary {
-    @apply px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-6 py-2.5 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--bf-primary);
+    box-shadow: 0 6px 12px rgba(18,78,102,0.12);
   }
 
   .btn-secondary {
-    @apply px-6 py-2.5 bg-white text-slate-700 font-medium border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-all duration-200;
+    @apply px-6 py-2.5 bg-white text-[var(--bf-800)] font-medium rounded-lg hover:bg-[var(--bf-200)] transition-all duration-200;
+    border: 1px solid var(--bf-400);
   }
 
   .btn-danger {
-    @apply px-6 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200;
+    @apply px-6 py-2.5 text-white font-medium rounded-lg hover:opacity-95 transition-all duration-200;
+    background-color: #c53030;
   }
 }

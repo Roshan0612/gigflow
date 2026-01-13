@@ -1,5 +1,7 @@
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { store } from '../store/store';
+import { addGig } from '../store/gigSlice';
 
 let socket = null;
 
@@ -50,6 +52,15 @@ export const connectSocket = () => {
         duration: 4000,
         position: 'top-right'
       });
+    }
+  });
+
+  socket.on('gig_created', (gig) => {
+    console.log('Received new gig via socket:', gig);
+    try {
+      store.dispatch(addGig(gig));
+    } catch (err) {
+      console.error('Error dispatching addGig from socket:', err);
     }
   });
 

@@ -1,4 +1,5 @@
 import Gig from '../models/Gig.js';
+import { getSocketIO } from '../socket/index.js';
 
 export const getGigs = async (req, res) => {
   try {
@@ -60,6 +61,17 @@ export const createGig = async (req, res) => {
 
     // Populate owner info
     await gig.populate('ownerId', 'name email');
+
+    // Emit real-time event to connected clients about the new gig
+    try {
+      const io = getSocketIO();
+      if (io) {
+        // Emit the newly created gig (populated) to all connected clients
+        io.emit('gig_created', gig);
+      }
+    } catch (emitErr) {
+      console.error('Error emitting gig_created event:', emitErr);
+    }
 
     res.status(201).json({
       success: true,
