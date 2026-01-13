@@ -21,9 +21,12 @@ const GigDetail = () => {
   });
 
   const [showBidForm, setShowBidForm] = useState(false);
+  // Normalize owner id/name to guard against unpopulated ownerId (string vs populated object)
+  const ownerIdNormalized = currentGig?.ownerId?._id ?? currentGig?.ownerId;
+  const ownerName = currentGig?.ownerId?.name ?? (typeof currentGig?.ownerId === 'string' ? currentGig.ownerId : '');
 
-  const isOwner = currentGig && user && currentGig.ownerId._id === user._id;
-  const canBid = currentGig && user && currentGig.ownerId._id !== user._id && currentGig.status === 'open';
+  const isOwner = Boolean(currentGig && user && ownerIdNormalized && String(ownerIdNormalized) === String(user._id));
+  const canBid = Boolean(currentGig && user && ownerIdNormalized && String(ownerIdNormalized) !== String(user._id) && currentGig.status === 'open');
 
   useEffect(() => {
     dispatch(fetchGigById(id));
@@ -35,7 +38,7 @@ const GigDetail = () => {
   }, [id, dispatch]);
 
   useEffect(() => {
-    if (currentGig && user && currentGig.ownerId._id === user._id) {
+    if (currentGig && user && String(ownerIdNormalized) === String(user._id)) {
       // Owner can see bids
       dispatch(fetchBidsForGig(id));
     }
@@ -56,7 +59,7 @@ const GigDetail = () => {
     const handleNewBid = (data) => {
       console.log('New bid received in real-time:', data);
       // Refresh bids list when new bid comes in
-      if (data.gigId === currentGig._id) {
+      if (String(data.gigId) === String(currentGig._id)) {
         dispatch(fetchBidsForGig(id));
       }
     };
@@ -185,12 +188,12 @@ const GigDetail = () => {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold">
-                    {currentGig.ownerId.name?.charAt(0).toUpperCase()}
+                    {ownerName ? ownerName.charAt(0).toUpperCase() : ''}
                   </div>
                   <div>
                     <p className="text-sm text-slate-500">Posted by</p>
                     <p className="font-semibold text-slate-700">
-                      {currentGig.ownerId.name}
+                      {ownerName || 'Unknown'}
                     </p>
                   </div>
                 </div>
@@ -219,8 +222,8 @@ const GigDetail = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500 mb-1">Project Budget</p>
-                <p className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  ₹{currentGig.budget.toLocaleString()}
+                  <p className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  ₹{currentGig.budget ? Number(currentGig.budget).toLocaleString() : '0'}
                 </p>
               </div>
             </div>
@@ -280,7 +283,7 @@ const GigDetail = () => {
                       min="1"
                     />
                   </div>
-                  <p className="text-sm text-slate-500 mt-2">Project budget: ₹{currentGig.budget.toLocaleString()}</p>
+                  <p className="text-sm text-slate-500 mt-2">Project budget: ₹{currentGig.budget ? Number(currentGig.budget).toLocaleString() : '0'}</p>
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -344,7 +347,7 @@ const GigDetail = () => {
                   <h2 className="text-2xl font-bold text-slate-900">
                     Proposals Received
                   </h2>
-                  <p className="text-slate-600">{bids.length} freelancer{bids.length !== 1 ? 's' : ''} interested</p>
+                  <p className="text-slate-600">{(bids || []).length} freelancer{(bids || []).length !== 1 ? 's' : ''} interested</p>
                 </div>
               </div>
             </div>
@@ -356,7 +359,7 @@ const GigDetail = () => {
               </div>
             )}
 
-            {!bidLoading && bids.length === 0 && (
+            {!bidLoading && (bids || []).length === 0 && (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -371,7 +374,7 @@ const GigDetail = () => {
             )}
 
             <div className="space-y-4">
-              {bids.map((bid) => (
+              {(bids || []).map((bid) => (
                 <div
                   key={bid._id}
                   className={`border-2 rounded-xl p-6 transition-all ${
@@ -385,14 +388,14 @@ const GigDetail = () => {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
                     <div className="flex items-start space-x-3 flex-1">
                       <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                        {bid.freelancerId.name?.charAt(0).toUpperCase()}
+                        {((bid.freelancerId && bid.freelancerId.name) ? bid.freelancerId.name.charAt(0).toUpperCase() : (typeof bid.freelancerId === 'string' ? bid.freelancerId.charAt(0).toUpperCase() : ''))}
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-lg text-slate-900">
-                          {bid.freelancerId.name}
+                          {bid.freelancerId?.name ?? (typeof bid.freelancerId === 'string' ? bid.freelancerId : 'Unknown')}
                         </h3>
                         <p className="text-sm text-slate-500">
-                          {bid.freelancerId.email}
+                          {bid.freelancerId?.email ?? ''}
                         </p>
                       </div>
                     </div>
