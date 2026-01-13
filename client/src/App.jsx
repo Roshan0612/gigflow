@@ -14,6 +14,7 @@ import GigFeed from './pages/GigFeed';
 import PostGig from './pages/PostGig';
 import GigDetail from './pages/GigDetail';
 import MyGigs from './pages/MyGigs';
+import MyBids from './pages/MyBids';
 
 function AppContent() {
   const dispatch = useDispatch();
@@ -91,6 +92,14 @@ function AppContent() {
               <MyGigs />
             </ProtectedRoute>
           } 
+        />
+        <Route
+          path="/my-bids"
+          element={
+            <ProtectedRoute>
+              <MyBids />
+            </ProtectedRoute>
+          }
         />
         <Route path="/gig/:id" element={<GigDetail />} />
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -22,8 +22,11 @@ const MyGigs = () => {
     }
   }, [error, dispatch]);
 
-  // Filter gigs to show only those posted by current user
-  const myGigs = gigs.filter((gig) => gig.ownerId._id === user?._id);
+  // Filter gigs to show only those posted by current user (guard undefined shapes)
+  const myGigs = (gigs || []).filter((gig) => {
+    const owner = gig?.ownerId?._id ?? gig?.ownerId;
+    return user && owner && String(owner) === String(user._id);
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 py-6 sm:py-12 px-4 sm:px-6 lg:px-12">
@@ -164,7 +167,7 @@ const MyGigs = () => {
                         <div>
                           <p className="text-slate-500">Posted</p>
                           <p className="font-bold text-slate-900">
-                            {new Date(gig.createdAt).toLocaleDateString('en-IN', { day: 'short', month: 'short' })}
+                            {gig.createdAt ? new Date(gig.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''}
                           </p>
                         </div>
                       </div>
